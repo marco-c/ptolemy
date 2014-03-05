@@ -264,6 +264,7 @@ function renderTileData(ctx, tileData, zoomLevel) {
 
   // Draw street names
   ctx.fillStyle = "black";
+  ctx.textBaseline = 'middle'; 
 
   for (var i = 0; i < wayRenderingStyle.length; i++) {
     var style = wayRenderingStyle[i];
