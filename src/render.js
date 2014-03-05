@@ -126,18 +126,15 @@ function drawStreetName(ctx, streetName, way) {
     if (skipPixels > 0) {
       skipPixels -= segmentLengthInPixel;
     } else if (segmentLengthInPixel > nameWidth) {
-      var drawX, drawY;
-      if (prevX <= curX) {
-        drawX = prevX;
-        drawY = prevY;
-      } else {
-        drawX = curX;
-        drawY = curY;
-      }
-
-      //console.log("DRAW AT: " + drawX + ", " + drawY);
       ctx.save();
-      ctx.translate(prevX, prevY);
+
+      if (prevX <= curX) {
+        //console.log("DRAW AT: " + prevX + ", " + prevY);
+        ctx.translate(prevX, prevY);
+      } else {
+        //console.log("DRAW AT: " + curX + ", " + curY);
+        ctx.translate(curX, curY);
+      }
       ctx.rotate(angle);
       ctx.fillText(streetName, 0, 0);
       ctx.restore();
@@ -223,14 +220,14 @@ function renderTile(x, y, zoomLevel, ctx, mapData, callback) {
       return;
     }
 
-    renderTileData(ctx, tileData);
+    renderTileData(ctx, tileData, zoomLevel);
     ctx.restore();
 
     callback(null);
   });
 }
 
-function renderTileData(ctx, tileData) {
+function renderTileData(ctx, tileData, zoomLevel) {
   console.time('render-start');
 
   // Rounded lines look cute :)
@@ -275,10 +272,23 @@ function renderTileData(ctx, tileData) {
       continue;
     }
 
+    if (zoomLevel < 18 && style.name == HIGHWAYD_TYPE) {
+      continue;
+    }
+    if (zoomLevel < 17 && style.name == HIGHWAYC_TYPE) {
+      continue;
+    }
+    if (zoomLevel < 16 && style.name == HIGHWAYB_TYPE) {
+      continue;
+    }
+    if (zoomLevel < 15 && style.name == HIGHWAYA_TYPE) {
+      continue;
+    }
+
     var ways = tileData[style.name];
 
-    ctx.font = "20px verdana";
-
+    ctx.font = style.lineWidth + "px verdana";
+console.log("zoomlevel: " + zoomLevel);
     for (var j = 0; j < ways.length; j++) {
       drawStreetName(ctx, "Via Mozilla", ways[j]);
     }
