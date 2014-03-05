@@ -31,6 +31,12 @@ function drawShape(ctx, shape, fillShape) {
   }
 }
 
+function drawStreetName(ctx, streetName) {
+  ctx.fillStyle = "red";
+  ctx.fillText(streetName, 50, 50);
+  var textWidth = ctx.measureText(streetName);
+}
+
 var wayRenderingStyle = [
   {
     name: 'landuse', color: 'green', fill: true,
@@ -76,9 +82,17 @@ var features = wayRenderingStyle.map(function(style) {
 function renderTile(x, y, zoomLevel, ctx, mapData, callback) {
   ctx.save();
 
+  ctx.font = "15px verdana";
+
   // Figure out the boundary box of the tile to render.
   var tileBB = getTileBoundingBoxInMeter(x, y, zoomLevel);
   var pixelPerMeter = getPixelPerMeter(zoomLevel);
+
+  ctx.scale(pixelPerMeter, pixelPerMeter);
+  ctx.translate(-tileBB.minX, -tileBB.minY);
+
+  ctx.restore();
+  drawStreetName(ctx, "Via Mozilla");
 
   ctx.scale(pixelPerMeter, pixelPerMeter);
   ctx.translate(-tileBB.minX, -tileBB.minY);
@@ -141,6 +155,8 @@ function renderTileData(ctx, tileData) {
       drawShape(ctx, ways[j], fill);
     }
   }
+
+  
 
   console.timeEnd('render-start');
 }
