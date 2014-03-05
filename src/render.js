@@ -131,8 +131,6 @@ function renderTileData(ctx, tileData) {
 
     assert(ways);
 
-    console.log(ways);
-
     if (style.outline) {
       for (var n = 0; n < ways.length; n++) {
         ctx.lineWidth = style.lineWidth * 1.1;
@@ -154,6 +152,13 @@ function renderTileData(ctx, tileData) {
       drawShape(ctx, ways[j], fill);
     }
   }
+
+  // Draw street names
+  for (var i = 0; i < wayRenderingStyle.length; i++) {
+    var style = wayRenderingStyle[i];
+    var ways = tileData[style.name];
+
+    if (style.name == )
 
   drawStreetName(ctx, "Via Mozilla");
 
