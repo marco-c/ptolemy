@@ -32,8 +32,9 @@ function drawShape(ctx, shape, fillShape) {
 }
 
 function drawStreetName(ctx, streetName) {
+  ctx.font = "50px verdana";
   ctx.fillStyle = "red";
-  ctx.fillText(streetName, 50, 50);
+  ctx.fillText(streetName, 21326542, 13907870);
   var textWidth = ctx.measureText(streetName);
 }
 
@@ -82,17 +83,13 @@ var features = wayRenderingStyle.map(function(style) {
 function renderTile(x, y, zoomLevel, ctx, mapData, callback) {
   ctx.save();
 
-  ctx.font = "15px verdana";
-
   // Figure out the boundary box of the tile to render.
   var tileBB = getTileBoundingBoxInMeter(x, y, zoomLevel);
   var pixelPerMeter = getPixelPerMeter(zoomLevel);
 
-  ctx.scale(pixelPerMeter, pixelPerMeter);
-  ctx.translate(-tileBB.minX, -tileBB.minY);
-
-  ctx.restore();
-  drawStreetName(ctx, "Via Mozilla");
+  console.log("Pixel per meter: " + pixelPerMeter);
+  console.log("-tileBB.minX: " + (-tileBB.minX));
+  console.log("-tileBB.minY: " + (-tileBB.minY));
 
   ctx.scale(pixelPerMeter, pixelPerMeter);
   ctx.translate(-tileBB.minX, -tileBB.minY);
@@ -134,6 +131,8 @@ function renderTileData(ctx, tileData) {
 
     assert(ways);
 
+    console.log(ways);
+
     if (style.outline) {
       for (var n = 0; n < ways.length; n++) {
         ctx.lineWidth = style.lineWidth * 1.1;
@@ -156,7 +155,7 @@ function renderTileData(ctx, tileData) {
     }
   }
 
-  
+  drawStreetName(ctx, "Via Mozilla");
 
   console.timeEnd('render-start');
 }
