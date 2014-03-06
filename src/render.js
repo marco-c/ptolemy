@@ -33,10 +33,24 @@ function drawShape(ctx, shape, fillShape) {
   }
 }
 
-function drawStreetName(ctx, streetName, way) {
-  //ctx.fillText(streetName, 21326542, 13907870);
+function insertSpot(spots, spot) {
+  var inserted = false;
 
-  /*var charWidth = ctx.measureText('V').width;
+  for (var i = 0; i < spots.length; i++) {
+    if (spot.x <= spots[i].x) {
+      spots.splice(i, 0, spot);
+      inserted = true;
+      break;
+    }
+  }
+
+  if (!inserted) {
+    spots.push(spot);
+  }
+}
+
+function drawStreetName(ctx, streetName, way) {
+  var charWidth = ctx.measureText('V').width;
 
   var spots = [];
 
@@ -56,23 +70,40 @@ function drawStreetName(ctx, streetName, way) {
     var charNum = Math.floor(segmentLength / charWidth);
 
     if (charNum > 0) {
-      spots.push({
-        charNum: charNum,
-        x: curX,
-        y: curY,
-        angle: angle
-      });
+      var newSpot;
+      if (prevX <= curX) {
+        newSpot = {
+          charNum: charNum,
+          x: prevX,
+          y: prevY,
+          angle: angle
+        };
+      } else {
+        newSpot = {
+          charNum: charNum,
+          x: curX,
+          y: curY,
+          angle: angle
+        };
+      }
+
+      insertSpot(spots, newSpot);
 
       totalChars += charNum;
       if (totalChars >= streetName.length) {
         break;
       }
-
-      prevX = curX;
-      prevY = curY;
-
-      console.log("CHARS: " + charNum);
+    } else {
+      spots = [];
+      totalChars = 0;
     }
+
+    prevX = curX;
+    prevY = curY;
+  }
+
+  if (totalChars < streetName.length) {
+    return;
   }
 
   var drawnCharNum = 0;
@@ -93,9 +124,9 @@ function drawStreetName(ctx, streetName, way) {
     console.log("DRAWTO: " + spots[i].x + ", " + spots[i].y);
 
     i++;
-  } while(spots[i] && drawnCharNum != streetName.length);*/
+  } while(spots[i] && drawnCharNum != streetName.length);
 
-  var nameWidth = ctx.measureText(streetName).width;
+  /*var nameWidth = ctx.measureText(streetName).width;
 
   var skipPixels = 0;
 
@@ -144,7 +175,7 @@ function drawStreetName(ctx, streetName, way) {
 
     prevX = curX;
     prevY = curY;
-  }
+  }*/
 }
 
 var wayRenderingStyle = [
@@ -266,7 +297,7 @@ function renderTileData(ctx, tileData, zoomLevel) {
   ctx.fillStyle = "black";
   ctx.textBaseline = 'middle'; 
 
-  for (var i = 0; i < wayRenderingStyle.length; i++) {
+  /*for (var i = 0; i < wayRenderingStyle.length; i++) {
     var style = wayRenderingStyle[i];
     if (style.name != HIGHWAYA_TYPE && style.name != HIGHWAYB_TYPE &&
         style.name != HIGHWAYC_TYPE && style.name != HIGHWAYD_TYPE) {
@@ -289,13 +320,13 @@ function renderTileData(ctx, tileData, zoomLevel) {
     var ways = tileData[style.name];
 
     ctx.font = style.lineWidth + "px verdana";
-console.log("zoomlevel: " + zoomLevel);
+
     for (var j = 0; j < ways.length; j++) {
       drawStreetName(ctx, "Via Mozilla", ways[j]);
     }
-  }
+  }*/
 
-  /*ctx.font = "20px verdana";
+  ctx.font = "20px verdana";
 
   var provaway = [
           21324427.22353956,
@@ -325,7 +356,7 @@ console.log("zoomlevel: " + zoomLevel);
           21323911.38015117,
           13907466.61801073
         ];
-  drawStreetName(ctx, "Via Mozilla", provaway);*/
+  drawStreetName(ctx, "Via Mozilla", provaway);
 
   console.timeEnd('render-start');
 }
