@@ -75,7 +75,7 @@ function drawStreetName(ctx, streetName, wayIn) {
 
   ctx.save();
   ctx.lineWidth = 1;
-  ctx.fillStyle = "red";
+  ctx.fillStyle = "darkred";
   ctx.beginPath();
 
   var segments = [];
@@ -165,10 +165,10 @@ function drawStreetName(ctx, streetName, wayIn) {
       angle = segments[curSegment].angle;
       varX = varY = 0;
 
-      /*while (((x+varX) < (oldX+oldVarX)) && ((y+varY+charWidth) > (oldY+oldVarY))) {
-        varX += Math.cos(angle);
-        varY += Math.sin(angle);
-      }*/
+      //while (((x+varX) < (oldX+oldVarX)) && ((y+varY+charWidth) > (oldY+oldVarY))) {
+      //  varX += Math.cos(angle);
+      //  varY += Math.sin(angle);
+      //}
 
       azzeraNext = false;
     }
@@ -282,7 +282,9 @@ function drawStreetName(ctx, streetName, wayIn) {
     i++;
   } while(spots[i] && drawnCharNum != streetName.length);*/
 
-  /*var nameWidth = ctx.measureText(streetName).width;
+  /*var way = wayIn;
+
+  var nameWidth = ctx.measureText(streetName).width;
 
   var skipPixels = 0;
 
