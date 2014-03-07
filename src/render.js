@@ -146,6 +146,8 @@ function drawStreetName(ctx, streetName, wayIn) {
     varY += charWidth * Math.sin(angle);
   }*/
 
+  var points = [];
+
   var azzeraNext = false;
   var curSegment = 0;
   var varX = 0;
@@ -188,14 +190,34 @@ function drawStreetName(ctx, streetName, wayIn) {
     //console.log("CUR_SEG: " + curSegment + ", x: " + x + ", y: " + y);
     //console.log("DRAW " + streetName[i] + " from " + (x + varX) + ", " + (y + varY) + " to " + (x + varX + charWidth * Math.cos(angle)) + ", " + (y + varY + charWidth * Math.sin(angle)));
 
-    ctx.save();
+    /*ctx.save();
     ctx.translate(x + varX, y + varY);
     ctx.rotate(angle);
     ctx.fillText(streetName[i], 0, 0);
-    ctx.restore();
+    ctx.restore();*/
+
+    points.push({
+      x: x + varX,
+      y: y + varY
+    });
 
     varX += charWidth * Math.cos(angle);
     varY += charWidth * Math.sin(angle);
+  }
+
+  if (points.length < streetName.length) {
+    return;
+  }
+
+  var charWritten = 0;
+  for (var i = 0; i < points.length; i++) {
+    var point = points[i];
+
+    ctx.save();
+    ctx.translate(point.x, point.y);
+    ctx.rotate(angle);
+    ctx.fillText(streetName[i], 0, 0);
+    ctx.restore();
   }
 
   /*var charWidth = ctx.measureText(streetName[0]).width;
