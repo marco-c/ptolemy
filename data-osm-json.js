@@ -64,6 +64,126 @@ function includeWay(way) {
 
 // -----------------------------------------------------------------------------
 
+// Square distance between 2 points
+function getSqDist(p1x, p1y, p2x, p2y) {
+
+    var dx = p1x - p2x,
+        dy = p1y - p2y;
+
+    return dx * dx + dy * dy;
+}
+
+// Square distance from a point to a segment
+function getSqSegDist(px, py, p1x, p1y, p2x, p2y) {
+
+    var x = p1x,
+        y = p1y,
+        dx = p2x - x,
+        dy = p2y - y;
+
+    if (dx !== 0 || dy !== 0) {
+
+        var t = ((px - x) * dx + (py - y) * dy) / (dx * dx + dy * dy);
+
+        if (t > 1) {
+            x = p2x;
+            y = p2y;
+
+        } else if (t > 0) {
+            x += dx * t;
+            y += dy * t;
+        }
+    }
+
+    dx = px - x;
+    dy = py - y;
+
+    return dx * dx + dy * dy;
+}
+
+// Basic distance-based simplification
+function simplifyRadialDist(points, sqTolerance) {
+
+    var prevPointX = points[0], prevPointY = points[1],
+        newPoints = [prevPointX, prevPointY],
+        point;
+
+    for (var i = 2; i < points.length; i += 2) {
+        pointX = points[i];
+        pointY = points[i+1];
+
+        if (getSqDist(pointX, pointY, prevPointX, prevPointY) > sqTolerance) {
+            newPoints.push(pointX);
+            newPoints.push(pointY);
+            prevPointX = pointX;
+            prevPointY = pointY;
+        }
+    }
+
+    if (prevPointX !== pointX && prevPointY !== pointY) {
+        newPoints.push(pointX);
+        newPoints.push(pointY);
+    }
+
+    return newPoints;
+}
+
+// Simplification using optimized Douglas-Peucker algorithm with recursion elimination
+function simplifyDouglasPeucker(points, sqTolerance) {
+
+    var len = points.length / 2,
+        MarkerArray = typeof Uint8Array !== 'undefined' ? Uint8Array : Array,
+        markers = new MarkerArray(len),
+        first = 0,
+        last = len - 1,
+        stack = [],
+        newPoints = [],
+        i, maxSqDist, sqDist, index;
+
+    markers[first] = markers[last] = 1;
+
+    while (last) {
+
+        maxSqDist = 0;
+
+        for (i = first + 1; i < last; i++) {
+            sqDist = getSqSegDist(points[i*2], points[i*2+1], points[first*2], points[first*2+1], points[last*2], points[last*2+1]);
+
+            if (sqDist > maxSqDist) {
+                index = i;
+                maxSqDist = sqDist;
+            }
+        }
+
+        if (maxSqDist > sqTolerance) {
+            markers[index] = 1;
+            stack.push(first, index, index, last);
+        }
+
+        last = stack.pop();
+        first = stack.pop();
+    }
+
+    for (i = 0; i < len; i++) {
+        if (markers[i]) {
+            newPoints.push(points[i*2]);
+            newPoints.push(points[i*2+1]);
+        }
+    }
+
+    return newPoints;
+}
+
+// both algorithms combined for awesome performance
+function simplify(points, tolerance, highestQuality) {
+    var sqTolerance = tolerance !== undefined ? tolerance * tolerance : 1;
+
+    points = highestQuality ? points : simplifyRadialDist(points, sqTolerance);
+    points = simplifyDouglasPeucker(points, sqTolerance);
+
+    return points;
+}
+
 function getBoundingBoxFromNodes(nodes) {
   var minX = equatorExtend, minY = equatorExtend, maxX = 0, maxY = 0;
 
@@ -88,8 +208,6 @@ function getBoundingBoxFromNodes(nodes) {
 function appendArray(a, b) {
   a.push.apply(a, b);
 }
-
-
 
 function packageMapData(wayCache, currentZoom, minZoom) {
   var resData = {
@@ -228,6 +346,7 @@ require('osm-read').parse({
       });
     });
     if (includeWay(tempWay)) {
+      tempWay.nodes = simplify(tempWay.nodes, 5, false);
       tempWay.boundingBox = getBoundingBoxFromNodes(tempWay.nodes);
       tempWay.wasPackaged = false;
       ways[tempWay.id] = tempWay;
